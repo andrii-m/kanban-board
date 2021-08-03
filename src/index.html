@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="utf-8">
+  <title>kanban</title>
+</head>
+
+<body>
+
+
+  <div class="kanban" id="kanban">
+
+    <div class="colum-wrapper">
+      <div class="colum">
+        <div class="colum-header">
+          <textarea rows="1" class="colum-header-name" dir="auto" maxlength="512">test</textarea>
+        </div>
+
+        <div class="colum-cards">
+
+          <div class="colum-card">
+            <span class=""></span>
+            <div class="colum-card-details">
+              <span class="colum-card-title">
+                ffFFSfff
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="card-composer-container">
+          <div class="open-card-composer">
+            <span class="fi-rr-plus icon-add"></span>
+            Добавить карточку
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+
+
+    <div class="colum-wrapper mod-add is-idle">
+      <form>
+        <span class="placeholder">
+          <span class="fi-rr-plus icon-add"></span>
+          Добавьте еще одну колонку
+        </span>
+        <input class="input input--primary name-input" type="text" name="name" placeholder="Ввести заголовок списка"
+          autocomplete="off" dir="auto" maxlength="512">
+        <div class="add-controls">
+          <input class="button button--primary" type="submit" value="Добавить список">
+          <span class="fi-rr-cross icon-close"></span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+</body>
+
+</html>
