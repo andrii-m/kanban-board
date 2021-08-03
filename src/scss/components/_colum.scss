@@ -30,6 +30,7 @@
         padding: 4px;
 
         .placeholder {
+            align-items: center;
             padding: 6px 8px;
             display: none;
             cursor: pointer;
@@ -47,22 +48,22 @@
             transition: 0.11s;
         }
 
-        .icon-add {
+        .placeholder-icon-add {
             font-size: 13px;
-            line-height: 14px;
-            vertical-align: middle;
-            margin-right: 6px;
+            line-height: 0;
+            margin-right: 8px;
             display: inline-block;
         }
 
-        .icon-close {
+        .controls-icon-close {
             cursor: pointer;
             height: 32px;
-            line-height: 36px;
             font-size: 14px;
             width: 32px;
             color: $dirty-blue;
-            text-align: center;
+            align-items: center;
+            justify-content: center;
+            display: flex;
         }
     }
 
@@ -71,12 +72,12 @@
         cursor: pointer;
 
         .placeholder {
-            display: block;
+            display: flex;
         }
 
         .name-input {
             display: none;
-        }
+        } 
 
         .add-controls {
             height: 0;
@@ -96,8 +97,8 @@
         box-sizing: border-box;
         display: block;
         line-height: 20px;
-        transition-duration: 85ms;
-        transition-timing-function: ease;
+        // transition-duration: 85ms;
+        // transition-timing-function: ease;
         font-size: 14px;
         width: 100%;
         color: $dark-blue;
@@ -110,7 +111,7 @@
         min-height: 20px;
         padding: 4px 8px;
         resize: none;
-        max-height: 256px;
+        max-height: 250px;
 
         &:focus {
             background-color: $white;
@@ -123,12 +124,13 @@
         margin: 2px 0 8px;
     }
     .open-card-composer {
+        display: flex;
+        align-items: center;
         font-size: 14px;
         line-height: 20px;
         font-weight: 400;
         border-radius: 3px;
         color: #5e6c84;
-        display: block;
         flex: 1 0 auto;
         padding: 4px 8px;
         position: relative;
@@ -136,12 +138,11 @@
         user-select: none;
         transition: 0.08s;
 
-        .icon-add {
+        .composer-icon-add {
             color: #6b778c;
             font-size: 11px;
-            line-height: 12px;
-            vertical-align: middle;
-            margin-right: 4px;
+            line-height: 0;
+            margin-right: 8px;
             display: inline-block;
             transition: 0.08s;
         }

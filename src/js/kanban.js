@@ -86,7 +86,7 @@ class KanbanColum {
 
           <div class="card-composer-container">
             <div class="open-card-composer">
-              <span class="fi-rr-plus icon-add"></span>
+              <span class="fi-rr-plus composer-icon-add"></span>
               Добавить карточку
             </div>
 
@@ -155,7 +155,7 @@ class KanbanColum {
   const modAdd = document.querySelector('.colum-wrapper.mod-add');
   const form = modAdd.querySelector('form');
   const input = modAdd.querySelector('input.name-input');
-  const close = modAdd.querySelector('.icon-close');
+  const close = modAdd.querySelector('.controls-icon-close');
   const placeholder = modAdd.querySelector('.placeholder');
 
 
