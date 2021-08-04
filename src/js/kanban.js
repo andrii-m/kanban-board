@@ -2,6 +2,9 @@ let i = 0;
 
 let data = [];
 
+import dragula from 'dragula';
+
+
 class KanbanCard {
   constructor(colum, idCard, textCard) {
     this.colum = colum;
@@ -22,24 +25,24 @@ class KanbanCard {
     ).firstChild;
 
     card.idCard = this.idCard;
-    card.draggable = true;
+    //card.draggable = true;
     card.querySelector('.colum-card-title').innerHTML = this.textCard;
 
     card.onclick = this.removeCard.bind(this);
 
 
-    card.addEventListener('dragstart', () => {
-      card.classList.add('dragging')
-    })
+    // card.addEventListener('dragstart', () => {
+    //   card.classList.add('dragging')
+    // })
 
-    card.addEventListener('dragend', () => {
-      card.classList.remove('dragging');
+    // card.addEventListener('dragend', () => {
+    //   card.classList.remove('dragging');
 
-      // this.delDataCard();
-      // this.colum = card.closest('.colum');
-      // this.saveDataCard([].indexOf.call(card.parentNode.children, card));
+    //   // this.delDataCard();
+    //   // this.colum = card.closest('.colum');
+    //   // this.saveDataCard([].indexOf.call(card.parentNode.children, card));
 
-    })
+    // })
 
 
     this.colum.insertBefore(card, this.colum.lastElementChild);
@@ -61,6 +64,18 @@ class KanbanCard {
   }
 
 }
+
+let drake = dragula({
+  
+});
+
+drake.on('over', (event) => { 
+  console.log(event);
+  document.body.style.cursor = "auto"
+})
+drake.on('drag', (event) => {
+  document.body.style.cursor = "grabbing"
+})
 
 
 class KanbanColum {
@@ -115,34 +130,38 @@ class KanbanColum {
     });
 
     colum.querySelector('.open-card-composer').onclick = this.createCard.bind(this);
+    ////////////////////////////////////////////////////////////////
+    drake.containers.push(colum.querySelector('.colum-cards'));
 
-    colum.addEventListener('dragover', e => {
-      e.preventDefault()
-      const afterElement = (() => {
-        const draggableElements = [...colum.querySelectorAll('.colum-card:not(.dragging)')]
+    {
+    // colum.addEventListener('dragover', e => {
+    //   e.preventDefault()
+    //   const afterElement = (() => {
+    //     const draggableElements = [...colum.querySelectorAll('.colum-card:not(.dragging)')]
 
-        return draggableElements.reduce((closest, child) => {
-          const box = child.getBoundingClientRect()
-          const offset = e.clientY - box.top - box.height / 2
-          if (offset < 0 && offset > closest.offset) {
-            return { offset: offset, element: child }
-          } else {
-            return closest
-          }
-        }, { offset: Number.NEGATIVE_INFINITY }).element
-      })()
+    //     return draggableElements.reduce((closest, child) => {
+    //       const box = child.getBoundingClientRect()
+    //       const offset = e.clientY - box.top - box.height / 2
+    //       if (offset < 0 && offset > closest.offset) {
+    //         return { offset: offset, element: child }
+    //       } else {
+    //         return closest
+    //       }
+    //     }, { offset: Number.NEGATIVE_INFINITY }).element
+    //   })()
 
-      const draggable = document.querySelector('.dragging');
-      const columCards = colum.querySelector('.colum-cards');
+    //   const draggable = document.querySelector('.dragging');
+    //   const columCards = colum.querySelector('.colum-cards');
 
-      if (afterElement == null) {
-        columCards.appendChild(draggable)
-      } else {
-        columCards.insertBefore(draggable, afterElement);
-      }
+    //   if (afterElement == null) {
+    //     columCards.appendChild(draggable)
+    //   } else {
+    //     columCards.insertBefore(draggable, afterElement);
+    //   }
 
-    })
-
+    // })
+    
+    }
 
     this.kanban.insertBefore(colum, this.kanban.lastElementChild);
     headerNameHeight.bind(headerName)();

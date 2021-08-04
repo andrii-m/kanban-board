@@ -1,4 +1,5 @@
 .colum-card {
+    font-family: "Open Sans", sans-serif;
     background-color: $white;
     border-radius: 3px;
     box-shadow: 0 1px 0 rgb(9 30 66 / 25%);
@@ -31,9 +32,27 @@
         line-height: 20px;
         font-weight: 400;
     }
-}
 
-.colum-card.dragging{
-    cursor: grabbing;
-}
+    &.gu-mirror {
+        position: fixed;
+        margin: 0;
+        z-index: 9999;
+        cursor: grabbing;
+        box-shadow: 0 0 30px rgb(9 30 66 / 22%);
+    }
+    &.gu-hide {
+        display: none;
+    }
+    &.gu-unselectable {
+        user-select: none;
+    }
+    &.gu-transit {
+        opacity: 1;
+        background-color: $card-drag;
+        box-shadow: none;
 
+        .colum-card-title {
+            color: rgba(255, 255, 255, 0);
+        }
+    }
+}
