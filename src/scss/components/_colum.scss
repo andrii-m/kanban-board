@@ -107,11 +107,13 @@
         box-shadow: none;
         font-weight: 600;
         margin: -4px 0;
-        // height: 20px;
+        height: 28px;
         min-height: 20px;
         padding: 4px 8px;
         resize: none;
         max-height: 250px;
+        overflow: hidden;
+        overflow-wrap: break-word;
 
         &:focus {
             background-color: $white;

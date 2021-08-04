@@ -16,7 +16,6 @@ class KanbanCard {
         <span class=""></span>
         <div class="colum-card-details">
           <span class="colum-card-title">
-            ffFFSfff
           </span>
         </div>
       </div>`
@@ -36,9 +35,9 @@ class KanbanCard {
     card.addEventListener('dragend', () => {
       card.classList.remove('dragging');
 
-      this.delDataCard();
-      this.colum = card.closest('.colum');
-      this.saveDataCard([].indexOf.call(card.parentNode.children, card));
+      // this.delDataCard();
+      // this.colum = card.closest('.colum');
+      // this.saveDataCard([].indexOf.call(card.parentNode.children, card));
 
     })
 
@@ -65,16 +64,15 @@ class KanbanCard {
 
 
 class KanbanColum {
-  constructor(kanban, idColum, textColum) {
+  constructor(kanban, idColum, nameColum) {
     this.kanban = kanban;
     this.idColum = idColum;
-    this.textColum = textColum;
+    this.nameColum = nameColum;
 
     this.colum = this.createColum();
   }
 
   createColum() {
-
     let colum = document.createRange().createContextualFragment(
       `<div class="colum-wrapper">
         <div class="colum">
@@ -96,39 +94,80 @@ class KanbanColum {
     ).firstChild;
 
     colum.idColum = this.idColum;
-    colum.querySelector('.colum-header-name').innerHTML = this.textColum;
-    colum.querySelector('.open-card-composer').onclick = this.createCard.bind(this);
 
-    {
-    // colum.addEventListener('dragover', e => {
-    //   e.preventDefault()
-    //   const afterElement = (() => {
-    //     const draggableElements = [...colum.querySelectorAll('.kanban__card:not(.dragging)')]
+    let headerName = colum.querySelector('.colum-header-name');
+    headerName.value = this.nameColum;
 
-    //     return draggableElements.reduce((closest, child) => {
-    //       const box = child.getBoundingClientRect()
-    //       const offset = e.clientY - box.top - box.height / 2
-    //       if (offset < 0 && offset > closest.offset) {
-    //         return { offset: offset, element: child }
-    //       } else {
-    //         return closest
-    //       }
-    //     }, { offset: Number.NEGATIVE_INFINITY }).element
-    //   })()
-
-    //   const draggable = document.querySelector('.dragging')
-    //   if (afterElement == null) {
-    //     colum.appendChild(draggable)
-    //   } else {
-    //     colum.insertBefore(draggable, afterElement);
-    //   }
-
-    // })
+    function headerNameHeight() {
+      this.style.height = 'auto';
+      if (this.scrollHeight < 250) {
+        this.style.height = (this.scrollHeight > 28 ? this.scrollHeight : 28) + 'px';
+        this.style.overflow = 'hidden';
+      } else {
+        this.style.height = '250px';
+        this.style.overflowY = 'scroll';
+      }
     }
 
+    headerName.addEventListener('input', headerNameHeight);
+    headerName.addEventListener('change', (event) => {
+      this.renameColum.bind(this, event.target.value)()
+    });
+
+    colum.querySelector('.open-card-composer').onclick = this.createCard.bind(this);
+
+    colum.addEventListener('dragover', e => {
+      e.preventDefault()
+      const afterElement = (() => {
+        const draggableElements = [...colum.querySelectorAll('.colum-card:not(.dragging)')]
+
+        return draggableElements.reduce((closest, child) => {
+          const box = child.getBoundingClientRect()
+          const offset = e.clientY - box.top - box.height / 2
+          if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child }
+          } else {
+            return closest
+          }
+        }, { offset: Number.NEGATIVE_INFINITY }).element
+      })()
+
+      const draggable = document.querySelector('.dragging');
+      const columCards = colum.querySelector('.colum-cards');
+
+      if (afterElement == null) {
+        columCards.appendChild(draggable)
+      } else {
+        columCards.insertBefore(draggable, afterElement);
+      }
+
+    })
+
+
     this.kanban.insertBefore(colum, this.kanban.lastElementChild);
+    headerNameHeight.bind(headerName)();
 
     return colum;
+  }
+
+  renameColum(newName) {
+    let headerName = this.colum.querySelector('.colum-header-name');
+    let value = newName.trim();
+    if (value) {
+      this.nameColum = value;
+      headerName.value = value;
+    } else {
+      headerName.value = this.nameColum;
+    }
+
+    headerName.style.height = 'auto';
+    if (headerName.scrollHeight < 250) {
+      headerName.style.height = (headerName.scrollHeight > 28 ? headerName.scrollHeight : 28) + 'px';
+      headerName.style.overflow = 'hidden';
+    } else {
+      headerName.style.height = '250px';
+      headerName.style.overflowY = 'scroll';
+    }
   }
 
   saveColum() {
@@ -186,7 +225,3 @@ class KanbanColum {
   })
 
 })()
-
-
-
-

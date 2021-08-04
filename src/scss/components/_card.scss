@@ -10,6 +10,7 @@
     position: relative;
     text-decoration: none;
     z-index: 0;
+    cursor: grab;
 
     &-details {
         overflow: hidden;
@@ -31,3 +32,8 @@
         font-weight: 400;
     }
 }
+
+.colum-card.dragging{
+    cursor: grabbing;
+}
+
