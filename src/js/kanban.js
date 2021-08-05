@@ -4,6 +4,21 @@ let data = [];
 
 import dragula from 'dragula';
 
+let drakeColum = new dragula({
+  invalid: function (el) {
+    return el.classList.contains('edit-card');
+  }
+});
+
+drakeColum.on('over', () => {
+  document.body.style.cursor = "auto"
+})
+drakeColum.on('drag', () => {
+  document.body.style.cursor = "grabbing"
+})
+drakeColum.on('drop', (event) => {
+  console.log(event);
+})
 
 class KanbanCard {
   constructor(colum, idCard, textCard) {
@@ -16,38 +31,78 @@ class KanbanCard {
   createCard() {
     let card = document.createRange().createContextualFragment(
       `<div class="colum-card">
-        <span class=""></span>
-        <div class="colum-card-details">
-          <span class="colum-card-title">
-          </span>
-        </div>
+        <span class="fi-rr-trash colum-card-trash"></span>
+        <div class="colum-card-text-target"></div>
+        <textarea rows="1" class="colum-card-text"></textarea>
       </div>`
     ).firstChild;
 
     card.idCard = this.idCard;
-    //card.draggable = true;
-    card.querySelector('.colum-card-title').innerHTML = this.textCard;
-
-    card.onclick = this.removeCard.bind(this);
 
 
-    // card.addEventListener('dragstart', () => {
-    //   card.classList.add('dragging')
-    // })
+    let textTarget = card.querySelector('.colum-card-text-target');
+    let cardText = card.querySelector('.colum-card-text');
+    let cardTrash = card.querySelector('.colum-card-trash');
 
-    // card.addEventListener('dragend', () => {
-    //   card.classList.remove('dragging');
+    cardText.value = this.textCard;
 
-    //   // this.delDataCard();
-    //   // this.colum = card.closest('.colum');
-    //   // this.saveDataCard([].indexOf.call(card.parentNode.children, card));
+    function cardTextHeight() {
+      this.style.height = 'auto';
+      this.style.height = (this.scrollHeight > 32 ? this.scrollHeight : 32) + 'px';
+      this.style.overflow = 'hidden';
+    }
 
-    // })
+    cardText.addEventListener('input', cardTextHeight);
 
+    cardText.addEventListener('change', (event) => {
+      this.editTextCard.bind(this, event.target.value)()
+    });
 
-    this.colum.insertBefore(card, this.colum.lastElementChild);
+    textTarget.addEventListener('click', () => {
+      card.classList.add('edit-card');
+      cardText.focus();
+    })
+
+    cardText.addEventListener('keydown', (event) => {
+      if (event.keyCode == 13 && !event.shiftKey) {
+        event.preventDefault();
+        card.classList.remove('edit-card');
+        this.editTextCard.bind(this, event.target.value)();
+        event.target.blur();
+      }
+    });
+
+    window.addEventListener('mousedown', (event) => {
+      if (event.target.closest('.colum-card-text') != cardText) {
+        card.classList.remove('edit-card');
+        cardText.blur();
+      }
+    }) 
+
+    cardTrash.onclick = this.removeCard.bind(this);
+
+    // this.colum = card.closest('.colum');
+    // this.saveDataCard([].indexOf.call(card.parentNode.children, card));
+
+    this.colum.append(card);
+    cardTextHeight.bind(cardText)();
 
     return card;
+  }
+
+  editTextCard(newText) {
+    let cardText = this.card.querySelector('.colum-card-text');
+    let value = newText.trim();
+    if (newText) {
+      this.textCard = value;
+      cardText.value = value;
+    } else {
+      cardText.value = this.textCard;
+    }
+
+    cardText.style.height = 'auto';
+    cardText.style.height = (cardText.scrollHeight > 32 ? cardText.scrollHeight : 32) + 'px';
+    cardText.style.overflow = 'hidden';
   }
 
   saveDataCard(index = -1) {
@@ -65,17 +120,6 @@ class KanbanCard {
 
 }
 
-let drake = dragula({
-  
-});
-
-drake.on('over', (event) => { 
-  console.log(event);
-  document.body.style.cursor = "auto"
-})
-drake.on('drag', (event) => {
-  document.body.style.cursor = "grabbing"
-})
 
 
 class KanbanColum {
@@ -92,18 +136,31 @@ class KanbanColum {
       `<div class="colum-wrapper">
         <div class="colum">
           <div class="colum-header">
+            <span class="fi-rr-cross-small colum-trash"></span>
             <textarea rows="1" class="colum-header-name" dir="auto" maxlength="512"></textarea>          
           </div>
 
           <div class="colum-cards"></div>
 
-          <div class="card-composer-container">
-            <div class="open-card-composer">
-              <span class="fi-rr-plus composer-icon-add"></span>
-              Добавить карточку
-            </div>
+          <div class="card-composer">
 
+          <div class="card-composer-wrapper">
+            <div class="card-composer-write">
+              <textarea rows="3" class="card-composer-textarea" placeholder="Ввести заголовок для этой карточки"></textarea>
+            </div>
+            <div class="card-composer-controls">
+              <input class="button button--primary submit-composer" type="submit" value="Добавить карточку">
+              <span class="fi-rr-cross icon-close composer-close"></span>
+            </div>
           </div>
+
+          <div class="open-card-composer">
+            <span class="fi-rr-plus composer-icon-add"></span>
+            Добавить карточку
+          </div>
+
+        </div>
+
         </div>
       </div>`
     ).firstChild;
@@ -111,6 +168,8 @@ class KanbanColum {
     colum.idColum = this.idColum;
 
     let headerName = colum.querySelector('.colum-header-name');
+    let columTrash = colum.querySelector('.colum-trash');
+
     headerName.value = this.nameColum;
 
     function headerNameHeight() {
@@ -128,41 +187,78 @@ class KanbanColum {
     headerName.addEventListener('change', (event) => {
       this.renameColum.bind(this, event.target.value)()
     });
+    headerName.addEventListener('keydown', (event) => {
+      if (event.keyCode == 13 && !event.shiftKey) {
+        event.preventDefault();
+        this.renameColum.bind(this, event.target.value)()
+        event.target.blur();
+      }
+    });
 
-    colum.querySelector('.open-card-composer').onclick = this.createCard.bind(this);
-    ////////////////////////////////////////////////////////////////
-    drake.containers.push(colum.querySelector('.colum-cards'));
+    columTrash.addEventListener('click', () => {
+      this.removeColum();
+    });
 
-    {
-    // colum.addEventListener('dragover', e => {
-    //   e.preventDefault()
-    //   const afterElement = (() => {
-    //     const draggableElements = [...colum.querySelectorAll('.colum-card:not(.dragging)')]
+    let cardComposer = colum.querySelector('.card-composer');
+    let openCardComposer = cardComposer.querySelector('.open-card-composer');
+    let cardComposerTextarea = cardComposer.querySelector('.card-composer-textarea');
+    let submitComposer = cardComposer.querySelector('.submit-composer');
+    let composerClose = cardComposer.querySelector('.composer-close');    
 
-    //     return draggableElements.reduce((closest, child) => {
-    //       const box = child.getBoundingClientRect()
-    //       const offset = e.clientY - box.top - box.height / 2
-    //       if (offset < 0 && offset > closest.offset) {
-    //         return { offset: offset, element: child }
-    //       } else {
-    //         return closest
-    //       }
-    //     }, { offset: Number.NEGATIVE_INFINITY }).element
-    //   })()
+    openCardComposer.addEventListener('click', (event) => {
+      cardComposer.classList.add('show-composer');
+      cardComposerTextarea.focus();
+    });
+    window.addEventListener('mousedown', event => {
+      if (event.target.closest('.card-composer') != cardComposer) {
+        cardComposer.classList.remove('show-composer');
+      }
+    })
 
-    //   const draggable = document.querySelector('.dragging');
-    //   const columCards = colum.querySelector('.colum-cards');
 
-    //   if (afterElement == null) {
-    //     columCards.appendChild(draggable)
-    //   } else {
-    //     columCards.insertBefore(draggable, afterElement);
-    //   }
-
-    // })
-    
+    function composerTextareaHeight() {
+      cardComposerTextarea.style.height = 'auto';
+      if (cardComposerTextarea.scrollHeight < 250) {
+        cardComposerTextarea.style.height = (cardComposerTextarea.scrollHeight > 60 ? cardComposerTextarea.scrollHeight : 60) + 'px';
+        cardComposerTextarea.style.overflow = 'hidden';
+      } else {
+        cardComposerTextarea.style.height = '250px';
+        cardComposerTextarea.style.overflowY = 'scroll';
+      }
     }
 
+    cardComposerTextarea.addEventListener('input', composerTextareaHeight);
+
+    function createNewCard() {
+      let textareaValue = cardComposerTextarea.value;
+      if (textareaValue.trim()) {
+        this.createCard(textareaValue);
+        cardComposerTextarea.value = '';
+      }
+      cardComposerTextarea.focus();
+      composerTextareaHeight();
+    }
+
+    submitComposer.addEventListener('click', (event) => {
+      event.preventDefault();
+      createNewCard.bind(this)();
+    });
+
+    cardComposerTextarea.addEventListener('keydown', (event) => {
+      if (event.keyCode == 13 && !event.shiftKey) {
+        event.preventDefault();
+        createNewCard.bind(this)();
+      }
+    });
+
+    composerClose.addEventListener('click', (event) => {
+      event.preventDefault();
+      cardComposer.classList.remove('show-composer');
+    })
+
+    //////////////////////
+
+    drakeColum.containers.push(colum.querySelector('.colum-cards'));
     this.kanban.insertBefore(colum, this.kanban.lastElementChild);
     headerNameHeight.bind(headerName)();
 
@@ -199,8 +295,8 @@ class KanbanColum {
 
 
 
-  createCard() {
-    new KanbanCard(this.colum.querySelector('.colum-cards'), Date.now(), 'New card ' + ++i);
+  createCard(name) {
+    new KanbanCard(this.colum.querySelector('.colum-cards'), Date.now(), name);
   }
 
 }
@@ -226,9 +322,8 @@ class KanbanColum {
     modAdd.classList.add('is-idle');
   });
 
-  window.addEventListener('click', e => {
-    const target = e.target
-    if (!target.closest('.colum-wrapper.mod-add')) {
+  window.addEventListener('mousedown', event => {
+    if (!event.target.closest('.colum-wrapper.mod-add')) {
       modAdd.classList.add('is-idle')
     }
   })

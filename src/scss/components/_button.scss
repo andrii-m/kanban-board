@@ -19,5 +19,26 @@
     &--primary {
         background-color: $primary;
         color: $white;
+        transition: 0.08s;
+
+        &:hover{
+            background-color: $hover-primary;
+        }
+    }
+}
+
+.icon-close {
+    cursor: pointer;
+    height: 32px;
+    font-size: 14px;
+    width: 32px;
+    color: $dirty-blue;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    transition: 0.08s;
+
+    &:hover{
+        color: $dark-blue;
     }
 }

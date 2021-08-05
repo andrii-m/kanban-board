@@ -14,35 +14,46 @@
     <!-- <div class="colum-wrapper">
       <div class="colum">
         <div class="colum-header">
-          <textarea class="colum-header-name" dir="auto" maxlength="512">test</textarea>
+          <span class="fi-rr-trash colum-trash"></span>
+          <textarea rows="1" class="colum-header-name" dir="auto" maxlength="512">test</textarea>
         </div>
 
         <div class="colum-cards">
 
-          <div class="colum-card">
-            <span class=""></span>
-            <div class="colum-card-details">
-              <span class="colum-card-title">
-                ffFFSfff
-              </span>
-            </div>
+          <div class="colum-card edit-card">
+            <span class="fi-rr-trash colum-card-trash"></span>
+            <div class="colum-card-text-target"></div>
+            <textarea  class="colum-card-text">
+              ffFFSfff
+            </textarea>
           </div>
-
         </div>
 
-        <div class="card-composer-container">
+
+
+        <div class="card-composer show-composer">
+
+          <div class="card-composer-wrapper">
+              <div class="card-composer-write">
+
+                <textarea rows="3" class="card-composer-textarea" dir="auto" placeholder="Ввести заголовок для этой карточки"></textarea>
+
+              </div>
+              <div class="card-composer-controls">
+                <input class="button button--primary submit-composer" type="submit" value="Добавить карточку">
+                <span class="fi-rr-cross icon-close composer-close"></span>
+
+              </div>
+          </div>
+
           <div class="open-card-composer">
             <span class="fi-rr-plus composer-icon-add"></span>
             Добавить карточку
           </div>
         </div>
+
       </div>
     </div> -->
-
-
-
-
-
 
 
     <div class="colum-wrapper mod-add is-idle">
@@ -55,7 +66,7 @@
           autocomplete="off" dir="auto" maxlength="512">
         <div class="add-controls">
           <input class="button button--primary" type="submit" value="Добавить список">
-          <span class="fi-rr-cross controls-icon-close"></span>
+          <span class="fi-rr-cross icon-close controls-icon-close"></span>
         </div>
       </form>
     </div>
