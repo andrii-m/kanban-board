@@ -1,5 +1,5 @@
 .colum {
-    background-color: $light-gray;
+    background-color: $colum-bg;
     border-radius: 3px;
     box-sizing: border-box;
     display: flex;
@@ -243,7 +243,6 @@
         overflow-x: hidden;
         margin: 0 4px;
         padding: 0 4px;
-        min-height: 10px;
         z-index: 1;
     }
 

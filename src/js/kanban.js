@@ -7,6 +7,24 @@ import dragula from 'dragula';
 let drakeColum = new dragula({
   invalid: function (el) {
     return el.classList.contains('edit-card');
+  },
+  isContainer: function (el) {    
+    let guTransit = document.querySelector('.gu-transit');
+    if (
+      guTransit != null
+      && el.classList.contains('colum-wrapper') 
+      && !el.classList.contains('mod-add')
+      && !el.querySelector('.gu-transit')
+    ){      
+      let columCards = el.querySelector('.colum-cards');
+      if (window.event.pageY < columCards.offsetTop) {
+        columCards.insertBefore(guTransit, columCards.firstChild)
+      } else{
+        columCards.append(guTransit)
+      }
+      
+    }
+    return el.classList.contains('colum-cards');
   }
 });
 
