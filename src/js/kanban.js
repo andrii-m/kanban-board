@@ -424,22 +424,24 @@ class Board {
         this.reset();
       }
       input.focus();
-    })
-
-    if (dataBoard.get()) {
-      dataBoard.data.forEach((colum) => {
-        let newColum = new BoardColum(board, colum.idColum, colum.nameColum);
-        colum.cards.forEach((card) => {
-          new BoardCard(newColum.colum.querySelector('.colum'), card.idCard, card.textCard);
-        });
-      });
-    }
+    })    
 
     this.container.append(board);
 
     return board;
   }
+
+  initColumsCards(){
+    if (dataBoard.get()) {
+      dataBoard.data.forEach((colum) => {
+        let newColum = new BoardColum(this.board, colum.idColum, colum.nameColum);
+        colum.cards.forEach((card) => {
+          new BoardCard(newColum.colum.querySelector('.colum'), card.idCard, card.textCard);
+        });
+      });
+    }
+  }
 }
 
 
-new Board(document.querySelector('body'));
+new Board(document.querySelector('body')).initColumsCards();

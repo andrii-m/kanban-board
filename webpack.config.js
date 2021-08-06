@@ -17,8 +17,8 @@ const templateFiles = fs.readdirSync(environment.paths.source)
   .filter((file) => path.extname(file).toLowerCase() === '.html');
 
 const htmlPluginEntries = templateFiles.map((template) => new HTMLWebpackPlugin({
-  inject: true,
-  hash: false,
+  inject: 'body',
+  hash: true,
   filename: template,
   template: path.resolve(environment.paths.source, template),
   favicon: path.resolve(environment.paths.source, 'images', 'favicon.ico'),
