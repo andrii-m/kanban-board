@@ -1,7 +1,7 @@
 
 import dragula from 'dragula';
 
-let drakeColum = new dragula({
+let drakeCard = new dragula({
   invalid: function (el) {
     return el.classList.contains('edit-card');
   },
@@ -27,14 +27,14 @@ let drakeColum = new dragula({
   }
 });
 
-drakeColum.on('over', () => {
+drakeCard.on('over', () => {
   document.body.style.cursor = "auto"
 })
-drakeColum.on('drag', () => {
+drakeCard.on('drag', () => {
   document.body.style.cursor = "grabbing"
 })
-drakeColum.on('drop', (event) => {
-  console.log(event);
+drakeCard.on('drop', (event) => {
+  event.checkPositionCard();
 })
 
 
@@ -118,9 +118,7 @@ class BoardCard {
     // this.colum = card.closest('.colum');
     // this.saveDataCard([].indexOf.call(card.parentNode.children, card));
 
-    // document.addEventListener("DOMContentLoaded", () => {
-    //   cardTextHeight.bind(cardText)();
-    // });
+    card.checkPositionCard = this.checkPosition.bind(this)
 
     this.colum.querySelector('.colum-cards').append(card);
     cardTextHeight.bind(cardText)();
@@ -145,6 +143,18 @@ class BoardCard {
     this.saveCard()
   }
 
+  checkPosition(){
+    let indexColum = dataBoard.data.findIndex(colum => colum.idColum == this.colum.idColum);
+    let dataCard = dataBoard.data[indexColum].cards.find(card => card.idCard == this.idCard);
+    dataBoard.data[indexColum].cards.splice(dataBoard.data[indexColum].cards.findIndex(card => card.idCard == this.idCard), 1);
+
+    this.colum = this.card.closest('.colum');
+    indexColum = dataBoard.data.findIndex(colum => colum.idColum == this.colum.idColum);
+
+    dataBoard.data[indexColum].cards.splice([].indexOf.call(this.card.parentNode.children, this.card), 0, dataCard);
+    dataBoard.set(dataBoard.data);
+  }
+
   saveCard() {
     let indexColum = dataBoard.data.findIndex(colum => colum.idColum == this.colum.idColum);
     let indexCard = dataBoard.data[indexColum].cards.findIndex(card => card.idCard == this.idCard);
@@ -162,8 +172,8 @@ class BoardCard {
 
   removeCard() {
     let indexColum = dataBoard.data.findIndex(colum => colum.idColum == this.colum.idColum);
-    dataBoard.data[indexColum].cards.splice(dataBoard.data[indexColum].cards.findIndex(card => card.idColum == this.idColum), 1);
-    dataBoard.set(dataBoard.data);;
+    dataBoard.data[indexColum].cards.splice(dataBoard.data[indexColum].cards.findIndex(card => card.idCard == this.idCard), 1);    
+    dataBoard.set(dataBoard.data);
     this.card.remove();
   }
 
@@ -305,11 +315,7 @@ class BoardColum {
       cardComposer.classList.remove('show-composer');
     })
 
-    // document.addEventListener("DOMContentLoaded", () => {
-    //   headerNameHeight.bind(headerName)();
-    // });
-
-    drakeColum.containers.push(colum.querySelector('.colum-cards'));
+    drakeCard.containers.push(colum.querySelector('.colum-cards'));
     this.board.insertBefore(colum, this.board.lastElementChild);
     headerNameHeight.bind(headerName)();
 
@@ -426,7 +432,7 @@ class Board {
       input.focus();
     })    
 
-    this.container.append(board);
+    this.container.prepend(board);
 
     return board;
   }
