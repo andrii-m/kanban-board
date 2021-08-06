@@ -1,6 +1,3 @@
-let i = 0;
-
-let data = [];
 
 import dragula from 'dragula';
 
@@ -8,21 +5,23 @@ let drakeColum = new dragula({
   invalid: function (el) {
     return el.classList.contains('edit-card');
   },
-  isContainer: function (el) {    
+  isContainer: function (el) {
     let guTransit = document.querySelector('.gu-transit');
+    let columCards = el.querySelector('.colum-cards');
+    let x = window.event.pageX;
     if (
       guTransit != null
-      && el.classList.contains('colum-wrapper') 
+      && el.classList.contains('colum-wrapper')
       && !el.classList.contains('mod-add')
       && !el.querySelector('.gu-transit')
-    ){      
-      let columCards = el.querySelector('.colum-cards');
+      && (columCards.getBoundingClientRect().left < x && columCards.getBoundingClientRect().right > x)
+    ) {
       if (window.event.pageY < columCards.offsetTop) {
         columCards.insertBefore(guTransit, columCards.firstChild)
-      } else{
+      } else {
         columCards.append(guTransit)
       }
-      
+
     }
     return el.classList.contains('colum-cards');
   }
@@ -38,7 +37,24 @@ drakeColum.on('drop', (event) => {
   console.log(event);
 })
 
-class KanbanCard {
+
+let dataBoard = {
+  data: JSON.parse(localStorage.getItem('dataBoard'))
+    ? JSON.parse(localStorage.getItem('dataBoard'))
+    : [],
+  get: function () {
+    return this.data = JSON.parse(localStorage.getItem('dataBoard'))
+      ? JSON.parse(localStorage.getItem('dataBoard'))
+      : [];
+  },
+  set: function (newData) {
+    localStorage.setItem('dataBoard', JSON.stringify(newData));
+    this.data = newData;
+  }
+}
+
+
+class BoardCard {
   constructor(colum, idCard, textCard) {
     this.colum = colum;
     this.idCard = idCard;
@@ -95,14 +111,18 @@ class KanbanCard {
         card.classList.remove('edit-card');
         cardText.blur();
       }
-    }) 
+    })
 
     cardTrash.onclick = this.removeCard.bind(this);
 
     // this.colum = card.closest('.colum');
     // this.saveDataCard([].indexOf.call(card.parentNode.children, card));
 
-    this.colum.append(card);
+    // document.addEventListener("DOMContentLoaded", () => {
+    //   cardTextHeight.bind(cardText)();
+    // });
+
+    this.colum.querySelector('.colum-cards').append(card);
     cardTextHeight.bind(cardText)();
 
     return card;
@@ -121,28 +141,39 @@ class KanbanCard {
     cardText.style.height = 'auto';
     cardText.style.height = (cardText.scrollHeight > 32 ? cardText.scrollHeight : 32) + 'px';
     cardText.style.overflow = 'hidden';
+
+    this.saveCard()
   }
 
-  saveDataCard(index = -1) {
-    console.log(index);
-  }
+  saveCard() {
+    let indexColum = dataBoard.data.findIndex(colum => colum.idColum == this.colum.idColum);
+    let indexCard = dataBoard.data[indexColum].cards.findIndex(card => card.idCard == this.idCard);
 
-  delDataCard() {
-    console.log(132);
+    if (indexCard != -1) {
+      dataBoard.data[indexColum].cards[indexCard].textCard = this.textCard;
+    } else {
+      dataBoard.data[indexColum].cards.push({
+        idCard: this.idCard,
+        textCard: this.textCard,
+      })
+    }
+    dataBoard.set(dataBoard.data)
   }
 
   removeCard() {
+    let indexColum = dataBoard.data.findIndex(colum => colum.idColum == this.colum.idColum);
+    dataBoard.data[indexColum].cards.splice(dataBoard.data[indexColum].cards.findIndex(card => card.idColum == this.idColum), 1);
+    dataBoard.set(dataBoard.data);;
     this.card.remove();
-    this.delDataCard();
   }
 
 }
 
 
 
-class KanbanColum {
-  constructor(kanban, idColum, nameColum) {
-    this.kanban = kanban;
+class BoardColum {
+  constructor(board, idColum, nameColum) {
+    this.board = board;
     this.idColum = idColum;
     this.nameColum = nameColum;
 
@@ -155,7 +186,7 @@ class KanbanColum {
         <div class="colum">
           <div class="colum-header">
             <span class="fi-rr-cross-small colum-trash"></span>
-            <textarea rows="1" class="colum-header-name" dir="auto" maxlength="512"></textarea>          
+            <textarea rows="1" class="colum-header-name" maxlength="512"></textarea>          
           </div>
 
           <div class="colum-cards"></div>
@@ -183,7 +214,7 @@ class KanbanColum {
       </div>`
     ).firstChild;
 
-    colum.idColum = this.idColum;
+    colum.querySelector('.colum').idColum = this.idColum;
 
     let headerName = colum.querySelector('.colum-header-name');
     let columTrash = colum.querySelector('.colum-trash');
@@ -221,7 +252,7 @@ class KanbanColum {
     let openCardComposer = cardComposer.querySelector('.open-card-composer');
     let cardComposerTextarea = cardComposer.querySelector('.card-composer-textarea');
     let submitComposer = cardComposer.querySelector('.submit-composer');
-    let composerClose = cardComposer.querySelector('.composer-close');    
+    let composerClose = cardComposer.querySelector('.composer-close');
 
     openCardComposer.addEventListener('click', (event) => {
       cardComposer.classList.add('show-composer');
@@ -274,10 +305,12 @@ class KanbanColum {
       cardComposer.classList.remove('show-composer');
     })
 
-    //////////////////////
+    // document.addEventListener("DOMContentLoaded", () => {
+    //   headerNameHeight.bind(headerName)();
+    // });
 
     drakeColum.containers.push(colum.querySelector('.colum-cards'));
-    this.kanban.insertBefore(colum, this.kanban.lastElementChild);
+    this.board.insertBefore(colum, this.board.lastElementChild);
     headerNameHeight.bind(headerName)();
 
     return colum;
@@ -301,59 +334,112 @@ class KanbanColum {
       headerName.style.height = '250px';
       headerName.style.overflowY = 'scroll';
     }
+
+    this.saveColum();
   }
 
   saveColum() {
-    console.log('saveColum');
+    let index = dataBoard.data.findIndex(colum => colum.idColum == this.idColum);
+    if (index != -1) {
+      dataBoard.data[index].nameColum = this.nameColum;
+    } else {
+      dataBoard.data.push({
+        idColum: this.idColum,
+        nameColum: this.nameColum,
+        cards: []
+      })
+    }
+    dataBoard.set(dataBoard.data)
   }
 
   removeColum() {
+    dataBoard.data.splice(dataBoard.data.findIndex(colum => colum.idColum == this.idColum), 1);
+    dataBoard.set(dataBoard.data);
     this.colum.remove();
   }
 
-
-
   createCard(name) {
-    new KanbanCard(this.colum.querySelector('.colum-cards'), Date.now(), name);
+    new BoardCard(this.colum.querySelector('.colum'), Date.now(), name).saveCard();
   }
 
 }
 
 
-(function () {
 
-  const kanban = document.querySelector('#kanban');
+class Board {
+  constructor(container) {
+    this.container = container;
+    this.board = this.createBoard();
+  }
 
-  const modAdd = document.querySelector('.colum-wrapper.mod-add');
-  const form = modAdd.querySelector('form');
-  const input = modAdd.querySelector('input.name-input');
-  const close = modAdd.querySelector('.controls-icon-close');
-  const placeholder = modAdd.querySelector('.placeholder');
+  createBoard() {
+    let board = document.createRange().createContextualFragment(
+      `<div class="board">  
+        <div class="colum-wrapper mod-add is-idle">
+          <form>
+            <span class="placeholder">
+              <span class="fi-rr-plus placeholder-icon-add"></span>
+              Добавьте еще одну колонку
+            </span>
+            <input class="input input--primary name-input" type="text" name="name" placeholder="Ввести заголовок списка"
+              autocomplete="off" dir="auto" maxlength="512">
+            <div class="add-controls">
+              <input class="button button--primary" type="submit" value="Добавить список">
+              <span class="fi-rr-cross icon-close controls-icon-close"></span>
+            </div>
+          </form>
+        </div>
+      </div>`
+    ).firstChild;
+
+    //const board = document.querySelector('#board');
+
+    const modAdd = board.querySelector('.colum-wrapper.mod-add');
+    const form = modAdd.querySelector('form');
+    const input = modAdd.querySelector('input.name-input');
+    const close = modAdd.querySelector('.controls-icon-close');
+    const placeholder = modAdd.querySelector('.placeholder');
 
 
-  placeholder.addEventListener('click', function () {
-    modAdd.classList.remove('is-idle');
-    input.focus();
-  });
+    placeholder.addEventListener('click', function () {
+      modAdd.classList.remove('is-idle');
+      input.focus();
+    });
 
-  close.addEventListener('click', function () {
-    modAdd.classList.add('is-idle');
-  });
+    close.addEventListener('click', function () {
+      modAdd.classList.add('is-idle');
+    });
 
-  window.addEventListener('mousedown', event => {
-    if (!event.target.closest('.colum-wrapper.mod-add')) {
-      modAdd.classList.add('is-idle')
+    window.addEventListener('mousedown', event => {
+      if (!event.target.closest('.colum-wrapper.mod-add')) {
+        modAdd.classList.add('is-idle')
+      }
+    })
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      let inputValue = this.querySelector('input.name-input').value;
+      if (inputValue.trim()) {
+        new BoardColum(board, Date.now(), inputValue).saveColum();
+        this.reset();
+      }
+      input.focus();
+    })
+
+    if (dataBoard.get()) {
+      dataBoard.data.forEach((colum) => {
+        let newColum = new BoardColum(board, colum.idColum, colum.nameColum);
+        colum.cards.forEach((card) => {
+          new BoardCard(newColum.colum.querySelector('.colum'), card.idCard, card.textCard);
+        });
+      });
     }
-  })
 
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    let inputValue = this.querySelector('input.name-input').value;
-    if (inputValue.trim()) {
-      new KanbanColum(kanban, Date.now(), inputValue).saveColum();
-      this.reset();
-    }
-    input.focus();
-  })
+    this.container.append(board);
 
-})()
+    return board;
+  }
+}
+
+
+new Board(document.querySelector('body'));

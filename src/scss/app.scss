@@ -1,5 +1,3 @@
-/* By Athlon Front-End Team */
-
 /* Core variables */
 @import 'base/vars';
 
@@ -12,7 +10,7 @@
 /* Fonts */
 @import 'base/fonts';
 
-/* Mixins, helpers and functions */
+/* Mixins */
 @import 'base/mixins';
 
 /* Icons */
@@ -21,12 +19,12 @@
 /* Vendor */
 
 /* Components */
-@import 'components/card';
-@import 'components/colum';
 @import 'components/button';
 @import 'components/input';
 
-/* Pages */
-@import 'containers/kanban';
+
+@import 'objects/card';
+@import 'objects/colum';
+@import 'objects/board';
 
 
