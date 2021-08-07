@@ -8,7 +8,10 @@ let drakeCard = new dragula({
   isContainer: function (el) {
     let guTransit = document.querySelector('.gu-transit');
     let columCards = el.querySelector('.colum-cards');
-    let x = window.event.pageX;
+    let x = window.event.pageX != undefined 
+          ? window.event.pageX 
+          : window.event.changedTouches[0].pageX;
+          
     if (
       guTransit != null
       && el.classList.contains('colum-wrapper')
