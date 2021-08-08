@@ -423,7 +423,6 @@ class Board {
         event.target.reset();
       }
       input.focus();
-      console.log(this.dataBoard.data);
     })    
 
     this.container.prepend(board);
