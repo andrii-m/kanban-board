@@ -1,65 +1,10 @@
 
 import dragula from 'dragula';
 
-let drakeCard = new dragula({
-  invalid: function (el) {
-    return el.classList.contains('edit-card');
-  },
-  isContainer: function (el) {
-    let guTransit = document.querySelector('.gu-transit');
-    let columCards = el.querySelector('.colum-cards');
-    let x = window.event.pageX != undefined 
-          ? window.event.pageX 
-          : window.event.changedTouches[0].pageX;
-          
-    if (
-      guTransit != null
-      && el.classList.contains('colum-wrapper')
-      && !el.classList.contains('mod-add')
-      && !el.querySelector('.gu-transit')
-      && (columCards.getBoundingClientRect().left < x && columCards.getBoundingClientRect().right > x)
-    ) {
-      if (window.event.pageY < columCards.offsetTop) {
-        columCards.insertBefore(guTransit, columCards.firstChild)
-      } else {
-        columCards.append(guTransit)
-      }
-
-    }
-    return el.classList.contains('colum-cards');
-  }
-});
-
-drakeCard.on('over', () => {
-  document.body.style.cursor = "auto"
-})
-drakeCard.on('drag', () => {
-  document.body.style.cursor = "grabbing"
-})
-drakeCard.on('drop', (event) => {
-  event.checkPositionCard();
-})
-
-
-let dataBoard = {
-  data: JSON.parse(localStorage.getItem('dataBoard'))
-    ? JSON.parse(localStorage.getItem('dataBoard'))
-    : [],
-  get: function () {
-    return this.data = JSON.parse(localStorage.getItem('dataBoard'))
-      ? JSON.parse(localStorage.getItem('dataBoard'))
-      : [];
-  },
-  set: function (newData) {
-    localStorage.setItem('dataBoard', JSON.stringify(newData));
-    this.data = newData;
-  }
-}
-
-
 class BoardCard {
-  constructor(colum, idCard, textCard) {
+  constructor(colum, dataBoard, idCard, textCard) {
     this.colum = colum;
+    this.dataBoard = dataBoard;
     this.idCard = idCard;
     this.textCard = textCard;
 
@@ -118,9 +63,6 @@ class BoardCard {
 
     cardTrash.onclick = this.removeCard.bind(this);
 
-    // this.colum = card.closest('.colum');
-    // this.saveDataCard([].indexOf.call(card.parentNode.children, card));
-
     card.checkPositionCard = this.checkPosition.bind(this)
 
     this.colum.querySelector('.colum-cards').append(card);
@@ -147,36 +89,36 @@ class BoardCard {
   }
 
   checkPosition(){
-    let indexColum = dataBoard.data.findIndex(colum => colum.idColum == this.colum.idColum);
-    let dataCard = dataBoard.data[indexColum].cards.find(card => card.idCard == this.idCard);
-    dataBoard.data[indexColum].cards.splice(dataBoard.data[indexColum].cards.findIndex(card => card.idCard == this.idCard), 1);
+    let indexColum = this.dataBoard.data.findIndex(colum => colum.idColum == this.colum.idColum);
+    let dataCard = this.dataBoard.data[indexColum].cards.find(card => card.idCard == this.idCard);
+    this.dataBoard.data[indexColum].cards.splice(this.dataBoard.data[indexColum].cards.findIndex(card => card.idCard == this.idCard), 1);
 
     this.colum = this.card.closest('.colum');
-    indexColum = dataBoard.data.findIndex(colum => colum.idColum == this.colum.idColum);
+    indexColum = this.dataBoard.data.findIndex(colum => colum.idColum == this.colum.idColum);
 
-    dataBoard.data[indexColum].cards.splice([].indexOf.call(this.card.parentNode.children, this.card), 0, dataCard);
-    dataBoard.set(dataBoard.data);
+    this.dataBoard.data[indexColum].cards.splice([].indexOf.call(this.card.parentNode.children, this.card), 0, dataCard);
+    this.dataBoard.set(this.dataBoard.data);
   }
 
   saveCard() {
-    let indexColum = dataBoard.data.findIndex(colum => colum.idColum == this.colum.idColum);
-    let indexCard = dataBoard.data[indexColum].cards.findIndex(card => card.idCard == this.idCard);
+    let indexColum = this.dataBoard.data.findIndex(colum => colum.idColum == this.colum.idColum);
+    let indexCard = this.dataBoard.data[indexColum].cards.findIndex(card => card.idCard == this.idCard);
 
     if (indexCard != -1) {
-      dataBoard.data[indexColum].cards[indexCard].textCard = this.textCard;
+      this.dataBoard.data[indexColum].cards[indexCard].textCard = this.textCard;
     } else {
-      dataBoard.data[indexColum].cards.push({
+      this.dataBoard.data[indexColum].cards.push({
         idCard: this.idCard,
         textCard: this.textCard,
       })
     }
-    dataBoard.set(dataBoard.data)
+    this.dataBoard.set(this.dataBoard.data)
   }
 
   removeCard() {
-    let indexColum = dataBoard.data.findIndex(colum => colum.idColum == this.colum.idColum);
-    dataBoard.data[indexColum].cards.splice(dataBoard.data[indexColum].cards.findIndex(card => card.idCard == this.idCard), 1);    
-    dataBoard.set(dataBoard.data);
+    let indexColum = this.dataBoard.data.findIndex(colum => colum.idColum == this.colum.idColum);
+    this.dataBoard.data[indexColum].cards.splice(this.dataBoard.data[indexColum].cards.findIndex(card => card.idCard == this.idCard), 1);    
+    this.dataBoard.set(this.dataBoard.data);
     this.card.remove();
   }
 
@@ -185,17 +127,17 @@ class BoardCard {
 
 
 class BoardColum {
-  constructor(board, idColum, nameColum, thisBoard) {
-    this.board = board;
+  constructor(board, drakeCard, dataBoard, idColum, nameColum) {
+    this.board = board;    
+    this.drakeCard = drakeCard;
+    this.dataBoard = dataBoard;
     this.idColum = idColum;
     this.nameColum = nameColum;
-    this.thisBoard = thisBoard;
 
     this.colum = this.createColum();
   }
 
   createColum() {
-    console.log(this.thisBoard.container);
     let colum = document.createRange().createContextualFragment(
       `<div class="colum-wrapper">
         <div class="colum">
@@ -320,7 +262,7 @@ class BoardColum {
       cardComposer.classList.remove('show-composer');
     })
 
-    drakeCard.containers.push(colum.querySelector('.colum-cards'));
+    this.drakeCard.containers.push(colum.querySelector('.colum-cards'));
     this.board.insertBefore(colum, this.board.lastElementChild);
     headerNameHeight.bind(headerName)();
 
@@ -350,27 +292,27 @@ class BoardColum {
   }
 
   saveColum() {
-    let index = dataBoard.data.findIndex(colum => colum.idColum == this.idColum);
+    let index = this.dataBoard.data.findIndex(colum => colum.idColum == this.idColum);
     if (index != -1) {
-      dataBoard.data[index].nameColum = this.nameColum;
+      this.dataBoard.data[index].nameColum = this.nameColum;
     } else {
-      dataBoard.data.push({
+      this.dataBoard.data.push({
         idColum: this.idColum,
         nameColum: this.nameColum,
         cards: []
       })
     }
-    dataBoard.set(dataBoard.data)
+    this.dataBoard.set(this.dataBoard.data)
   }
 
   removeColum() {
-    dataBoard.data.splice(dataBoard.data.findIndex(colum => colum.idColum == this.idColum), 1);
-    dataBoard.set(dataBoard.data);
+    this.dataBoard.data.splice(this.dataBoard.data.findIndex(colum => colum.idColum == this.idColum), 1);
+    this.dataBoard.set(this.dataBoard.data);
     this.colum.remove();
   }
 
-  createCard(name) {
-    new BoardCard(this.colum.querySelector('.colum'), Date.now(), name).saveCard();
+  createCard(text) {
+    new BoardCard(this.colum.querySelector('.colum'), this.dataBoard, Date.now(), text).saveCard();
   }
 
 }
@@ -382,6 +324,54 @@ class Board {
     this.container = container;
     this.board = this.createBoard();
   }
+
+  dataBoard = {
+    data: [],
+    get: function () {
+      return this.data = JSON.parse(localStorage.getItem('dataBoard'))
+        ? JSON.parse(localStorage.getItem('dataBoard'))
+        : [];
+    },
+    set: function (newData) {
+      localStorage.setItem('dataBoard', JSON.stringify(newData));
+      this.data = newData;
+    }
+  }
+
+  drakeCard = new dragula({
+    invalid: function (el) {
+      return el.classList.contains('edit-card');
+    },
+    isContainer: function (el) {
+      let guTransit = document.querySelector('.gu-transit');
+      let columCards = el.querySelector('.colum-cards');
+      let x = window.event.pageX != undefined 
+            ? window.event.pageX 
+            : window.event.changedTouches[0].pageX;
+            
+      if (
+        guTransit != null
+        && el.classList.contains('colum-wrapper')
+        && !el.classList.contains('mod-add')
+        && !el.querySelector('.gu-transit')
+        && (columCards.getBoundingClientRect().left < x && columCards.getBoundingClientRect().right > x)
+      ) {
+        if (window.event.pageY < columCards.offsetTop) {
+          columCards.insertBefore(guTransit, columCards.firstChild)
+        } else {
+          columCards.append(guTransit)
+        }
+  
+      }
+      return el.classList.contains('colum-cards');
+    }
+  }).on('over', () => {
+    document.body.style.cursor = "auto"
+  }).on('drag', () => {
+    document.body.style.cursor = "grabbing"
+  }).on('drop', (event) => {
+    event.checkPositionCard();
+  })
 
   createBoard() {
     let board = document.createRange().createContextualFragment(
@@ -429,10 +419,11 @@ class Board {
       event.preventDefault();
       let inputValue = event.target.querySelector('input.name-input').value;
       if (inputValue.trim()) {
-        new BoardColum(board, Date.now(), inputValue, this).saveColum();
+        new BoardColum(board, this.drakeCard, this.dataBoard, Date.now(), inputValue).saveColum();
         event.target.reset();
       }
       input.focus();
+      console.log(this.dataBoard.data);
     })    
 
     this.container.prepend(board);
@@ -441,11 +432,11 @@ class Board {
   }
 
   initColumsCards(){
-    if (dataBoard.get()) {
-      dataBoard.data.forEach((colum) => {
-        let newColum = new BoardColum(this.board, colum.idColum, colum.nameColum, this);
+    if (this.dataBoard.get()) {
+      this.dataBoard.data.forEach((colum) => {
+        let newColum = new BoardColum(this.board, this.drakeCard, this.dataBoard, colum.idColum, colum.nameColum);
         colum.cards.forEach((card) => {
-          new BoardCard(newColum.colum.querySelector('.colum'), card.idCard, card.textCard);
+          new BoardCard(newColum.colum.querySelector('.colum'), this.dataBoard, card.idCard, card.textCard);
         });
       });
     }
