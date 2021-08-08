@@ -14,17 +14,16 @@
 @import 'base/mixins';
 
 /* Icons */
-@import 'uicons';
+@import 'base/uicons';
 
-/* Vendor */
+
+/* Objects */
+@import 'objects/button';
+@import 'objects/input';
 
 /* Components */
-@import 'components/button';
-@import 'components/input';
-
-
-@import 'objects/card';
-@import 'objects/colum';
-@import 'objects/board';
+@import 'components/card';
+@import 'components/colum';
+@import 'components/board';
 
 

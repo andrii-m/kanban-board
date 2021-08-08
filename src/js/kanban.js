@@ -185,15 +185,17 @@ class BoardCard {
 
 
 class BoardColum {
-  constructor(board, idColum, nameColum) {
+  constructor(board, idColum, nameColum, thisBoard) {
     this.board = board;
     this.idColum = idColum;
     this.nameColum = nameColum;
+    this.thisBoard = thisBoard;
 
     this.colum = this.createColum();
   }
 
   createColum() {
+    console.log(this.thisBoard.container);
     let colum = document.createRange().createContextualFragment(
       `<div class="colum-wrapper">
         <div class="colum">
@@ -401,8 +403,6 @@ class Board {
       </div>`
     ).firstChild;
 
-    //const board = document.querySelector('#board');
-
     const modAdd = board.querySelector('.colum-wrapper.mod-add');
     const form = modAdd.querySelector('form');
     const input = modAdd.querySelector('input.name-input');
@@ -425,12 +425,12 @@ class Board {
       }
     })
 
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      let inputValue = this.querySelector('input.name-input').value;
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      let inputValue = event.target.querySelector('input.name-input').value;
       if (inputValue.trim()) {
-        new BoardColum(board, Date.now(), inputValue).saveColum();
-        this.reset();
+        new BoardColum(board, Date.now(), inputValue, this).saveColum();
+        event.target.reset();
       }
       input.focus();
     })    
@@ -443,7 +443,7 @@ class Board {
   initColumsCards(){
     if (dataBoard.get()) {
       dataBoard.data.forEach((colum) => {
-        let newColum = new BoardColum(this.board, colum.idColum, colum.nameColum);
+        let newColum = new BoardColum(this.board, colum.idColum, colum.nameColum, this);
         colum.cards.forEach((card) => {
           new BoardCard(newColum.colum.querySelector('.colum'), card.idCard, card.textCard);
         });
