@@ -106,6 +106,7 @@ module.exports = {
           globOptions: {
             ignore: ['*.DS_Store', 'Thumbs.db'],
           },
+          noErrorOnMissing: true,          
         },
       ],
     }),
